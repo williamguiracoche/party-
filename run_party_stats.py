@@ -1,35 +1,23 @@
 # This script takes a party id as an argument and returns
 # stats about the party.
 from collections import Counter
+from libraries.partiful import Partiful
 import requests
 import sys
 requests.packages.urllib3.disable_warnings()
 
 def main():
-    request_url = "https://us-central1-getpartiful.cloudfunctions.net/getGuests"
     party_id = sys.argv[1]
-    json_data = {'data': {'eventId': party_id}}
-    guests_response = requests.post(request_url, json=json_data)
-    # Data in response to brainstorm:
-    # 'id', 'status', 'count', 'rsvpDate', 'plusOneCount', 'user', 'userId', 'name', 'rsvpHistory'
+    partiful_service = Partiful(party_id)
+    guest_first_names = partiful_service.get_guests_first_names()
+    male_name_count, female_name_count = gender_count(Counter(guest_first_names))
 
-    # names used to display everyone going
-    # first_names will be used for stats
-    names = []
-    first_names = []
-    for guest in guests_response.json()['result']:
-        name = guest['name']
-        first_names.append(name.split()[0].lower())
-
-        if guest['plusOneCount'] > 0:
-            name = name + " (+ {})".format(guest['plusOneCount'])
-        names.append(name)
-
-    male_name_count, female_name_count = gender_count(Counter(first_names))
     print("Party info:")
-    print
     print("Male name count: " + str(male_name_count))
     print("Female name count: " + str(female_name_count))
+
+    print('Guest List:')
+    partiful_service.print_guest_list()
     return
 
 def gender_count(name_count: Counter):
