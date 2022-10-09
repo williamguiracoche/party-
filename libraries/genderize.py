@@ -12,9 +12,8 @@ class Genderize():
 
     def male_and_female_name_count(self, name_count: Counter):
         female_name_count = 0
-        for name in name_count:  
+        for name in name_count:
             if self.get_gender_of_name(name) == 'female' : female_name_count += name_count[name]
         total_count = sum(name_count.values())
 
         return (total_count - female_name_count, female_name_count)
-    
